@@ -29,6 +29,7 @@ async function run() {
 
 
         const classesCollection = client.db("language-mastery-DB").collection("classes")
+        const instructorsCollection = client.db("language-mastery-DB").collection("instructors")
 
         app.post('/classes', async (req, res) => {
             const singleClass = req.body;
@@ -38,6 +39,12 @@ async function run() {
 
         app.get('/classes', async (req, res) => {
             const result = await classesCollection.find().toArray();
+            res.send(result);
+        })
+
+        app.post('/instructors', async(req, res) => {
+            const instructor = req.body;
+            const result = await instructorsCollection.insertOne(instructor);
             res.send(result);
         })
 
