@@ -30,6 +30,7 @@ async function run() {
 
         const classesCollection = client.db("language-mastery-DB").collection("classes")
         const instructorsCollection = client.db("language-mastery-DB").collection("instructors")
+        const usersCollection = client.db("language-mastery-DB").collection("users")
 
         app.post('/classes', async (req, res) => {
             const singleClass = req.body;
@@ -42,7 +43,7 @@ async function run() {
             res.send(result);
         })
 
-        app.post('/instructors', async(req, res) => {
+        app.post('/instructors', async (req, res) => {
             const instructor = req.body;
             const result = await instructorsCollection.insertOne(instructor);
             res.send(result);
@@ -53,6 +54,16 @@ async function run() {
             res.send(result);
         })
 
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const result = await usersCollection.insertOne(user);
+            res.send(result);
+        })
+
+        app.get('/users', async (req, res) => {
+            const result = await usersCollection.find().toArray();
+            res.send(result);
+        })
 
 
         // Send a ping to confirm a successful connection
