@@ -31,6 +31,7 @@ async function run() {
         const classesCollection = client.db("language-mastery-DB").collection("classes")
         const instructorsCollection = client.db("language-mastery-DB").collection("instructors")
         const usersCollection = client.db("language-mastery-DB").collection("users")
+        const cartCollection = client.db("language-mastery-DB").collection("cart")
 
         app.post('/classes', async (req, res) => {
             const singleClass = req.body;
@@ -62,6 +63,20 @@ async function run() {
 
         app.get('/users', async (req, res) => {
             const result = await usersCollection.find().toArray();
+            res.send(result);
+        })
+
+        app.post('/cart', async (req, res) => {
+            const item = req.body;
+            const result = await cartCollection.insertOne(item);
+            res.send(result);
+        })
+        app.get('/cart', async (req, res) => {
+            let query = {};
+            if (req.query?.email) {
+                query = { email: req.query.email }
+            }
+            const result = await cartCollection.find(query).toArray();
             res.send(result);
         })
 
