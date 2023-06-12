@@ -105,11 +105,17 @@ async function run() {
             const result = await cartCollection.insertOne(item);
             res.send(result);
         })
-        app.get('/cart', async (req, res) => {
-            let query = {};
-            if (req.query?.email) {
-                query = { user_email: req.query.email }
+        app.get('/cart', verifyJWT, async (req, res) => {
+            const email = req.query.email;
+            if (!email) {
+                res.send([])
             }
+            const decodedEmail = req.decoded.email;
+            if (email !== decodedEmail) {
+                return res.status(403).send({ error: true, message: 'Forbidden Access' })
+            }
+
+            const query = { user_email: email }
             const result = await cartCollection.find(query).toArray();
             res.send(result);
         })
