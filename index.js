@@ -66,6 +66,15 @@ async function run() {
             }
             next();
         }
+        const verifyInstructor = async (req, res, next) => {
+            const email = req.decoded.email;
+            const query = { email: email }
+            const user = await usersCollection.findOne(query);
+            if (user?.type !== 'instructor') {
+                return res.status(403).send({ error: true, message: 'forbidden access' });
+            }
+            next();
+        }
 
         app.post('/classes', async (req, res) => {
             const singleClass = req.body;
@@ -75,6 +84,20 @@ async function run() {
 
         app.get('/classes', async (req, res) => {
             const result = await classesCollection.find().toArray();
+            res.send(result);
+        })
+        app.put('/classes/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedClasses = req.body;
+            const classes = {
+                $set: {
+                    available_seats: updatedClasses.available_seats,
+                    total_student: updatedClasses.total_student
+                }
+            }
+            const result = await classesCollection.updateOne(filter, classes, options);
             res.send(result);
         })
 
@@ -97,6 +120,32 @@ async function run() {
 
         app.get('/users', verifyJWT, verifyAdmin, async (req, res) => {
             const result = await usersCollection.find().toArray();
+            res.send(result);
+        })
+        
+        app.get('/users/admin/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+
+            if (req.decoded.email !== email) {
+                res.send({ admin: false })
+            }
+
+            const query = { email: email }
+            const user = await usersCollection.findOne(query)
+            const result = { admin: user?.type === 'admin' }
+            res.send(result);
+        })
+
+        app.get('/users/instructor/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+
+            if (req.decoded.email !== email) {
+                res.send({ instructor: false })
+            }
+
+            const query = { email: email }
+            const user = await usersCollection.findOne(query)
+            const result = { instructor: user?.type === 'instructor' }
             res.send(result);
         })
 
