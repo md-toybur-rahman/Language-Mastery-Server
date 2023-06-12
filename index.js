@@ -50,6 +50,7 @@ async function run() {
         const instructorsCollection = client.db("language-mastery-DB").collection("instructors")
         const usersCollection = client.db("language-mastery-DB").collection("users")
         const cartCollection = client.db("language-mastery-DB").collection("cart")
+        const instructorRequirementCollection = client.db("language-mastery-DB").collection("instructor-requirements")
 
         app.post('/jwt', (req, res) => {
             const user = req.body;
@@ -109,6 +110,23 @@ async function run() {
 
         app.get('/instructors', async (req, res) => {
             const result = await instructorsCollection.find().toArray();
+            res.send(result);
+        })
+
+        app.post('/instructors_requirements', async (req, res) => {
+            const instructor = req.body;
+            const result = await instructorRequirementCollection.insertOne(instructor);
+            res.send(result);
+        })
+
+        app.get('/instructors_requirements', async (req, res) => {
+            const result = await instructorRequirementCollection.find().toArray();
+            res.send(result);
+        })
+        app.delete('/instructors_requirements/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = instructorRequirementCollection.deleteOne(query);
             res.send(result);
         })
 
